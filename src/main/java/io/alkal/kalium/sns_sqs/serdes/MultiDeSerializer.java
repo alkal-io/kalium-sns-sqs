@@ -1,6 +1,5 @@
 package io.alkal.kalium.sns_sqs.serdes;
 
-import com.sun.xml.internal.rngom.dt.builtin.BuiltinDatatypeLibrary;
 import io.alkal.kalium.sns_sqs.ProtoUtils;
 
 import java.util.Map;
