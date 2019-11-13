@@ -10,7 +10,7 @@ import io.alkal.kalium.sns_sqs.tests.models.pojo.Payment;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
@@ -22,10 +22,10 @@ public class KaliumSnsSqsBasicTest {
     public void testItShouldCallReactionMethod_whenAMatchingEventIsPosted() throws InterruptedException, KaliumBuilderException {
 
         System.out.println("Start Kalium-SQS-SNS Basic End-2-End Test");
-        KaliumQueueAdapter queueAdapter1 = new KaliumSnsSqsQueueAdapter("us-west-2");
+        KaliumQueueAdapter queueAdapter1 = new KaliumSnsSqsQueueAdapter("us-west-1");
 
-        MyReaction myReaction = Mockito.spy(new MyReaction());
-        MyReaction2 myReaction2 = Mockito.spy(new MyReaction2());
+        MyReaction myReaction = new MyReaction();
+        MyReaction2 myReaction2 = new MyReaction2();
         Kalium kalium1 = Kalium.Builder()
                 .setQueueAdapter(queueAdapter1)
                 .build();
@@ -33,7 +33,7 @@ public class KaliumSnsSqsBasicTest {
         kalium1.addReaction(myReaction2);
         kalium1.start();
 
-        KaliumQueueAdapter queueAdapter2 = new KaliumSnsSqsQueueAdapter("us-west-2");
+        KaliumQueueAdapter queueAdapter2 = new KaliumSnsSqsQueueAdapter("us-west-1");
         Kalium kalium2 = Kalium.Builder()
                 .setQueueAdapter(queueAdapter2)
                 .build();
@@ -47,17 +47,11 @@ public class KaliumSnsSqsBasicTest {
         Thread.sleep(6000);
 
         synchronized (myReaction) {
-            ArgumentCaptor<Payment> argumentCaptor = ArgumentCaptor.forClass(Payment.class);
-            Mockito.verify(myReaction).doSomething(argumentCaptor.capture());
-            Payment capturedArgument = argumentCaptor.<Payment>getValue();
-            Assert.assertEquals(capturedArgument.getId(), payment.getId());
+            Assert.assertTrue(myReaction.isMethodCalled());
         }
 
         synchronized (myReaction2) {
-            ArgumentCaptor<Payment> argumentCaptor = ArgumentCaptor.forClass(Payment.class);
-            Mockito.verify(myReaction2).doSomething(argumentCaptor.capture());
-            Payment capturedArgument = argumentCaptor.<Payment>getValue();
-            Assert.assertEquals(capturedArgument.getId(), payment.getId());
+            Assert.assertTrue(myReaction2.isMethodCalled());
         }
 
 

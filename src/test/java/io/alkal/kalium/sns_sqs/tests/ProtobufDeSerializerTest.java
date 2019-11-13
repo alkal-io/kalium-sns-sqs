@@ -26,8 +26,8 @@ public class ProtobufDeSerializerTest {
     private ProtobufDeSerializer target = new ProtobufDeSerializer();
 
     @Test(expected = RuntimeException.class)
-    public void testConfigure_shouldThrowAnException_whenPropsHasNoTopicToClassMapValue() throws InterruptedException {
-        target.configure(null);
+    public void testSetTopicToClassMap_shouldThrowAnException_whenPropsHasNoTopicToClassMapValue() throws InterruptedException {
+        target.setTopicToClassMap(null);
     }
 
 
@@ -45,7 +45,7 @@ public class ProtobufDeSerializerTest {
     @Test(expected = SerializationException.class)
     public void testDeserialize_whenTopicIsNotInTopicToClassMap_shouldThrowSerializationException() {
         Map<String, Class<?>> topicToClassMap = new HashMap<>();
-        target.configure(topicToClassMap);
+        target.setTopicToClassMap(topicToClassMap);
 
         target.deserialize(validTopic, validSerializedPayment);
     }
@@ -54,28 +54,28 @@ public class ProtobufDeSerializerTest {
     public void testDeserialize_whenNoClassIsMappedInTopicToClassMap_shouldThrowSerializationException() {
         Map<String, Class<?>> topicToClassMap = new HashMap<>();
         topicToClassMap.put("payment", null);
-        target.configure(topicToClassMap);
+        target.setTopicToClassMap(topicToClassMap);
 
         target.deserialize(validTopic, validSerializedPayment);
     }
 
     @Test
     public void testDeserialize_whenBytesNull_shouldReturnNullObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, null);
         assertNull(o);
     }
 
     @Test
     public void testDeserialize_whenBytesIsEmpty_shouldReturnNullObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, "");
         assertNull(o);
     }
 
     @Test
     public void testDeserialize_shouldReturnPaymentObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, validSerializedPayment);
         assertTrue(o instanceof io.alkal.kalium.sns_sqs.tests.models.pb.Payment.PaymentPB);
     }

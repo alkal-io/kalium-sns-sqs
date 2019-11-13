@@ -21,14 +21,14 @@ public class KaliumSnsSqsQueueAdapterTest {
 
     @Before
     public void setup() {
-        target = new KaliumSnsSqsQueueAdapter("mykey", "mysecret", "us-west-2");
+        target = new KaliumSnsSqsQueueAdapter("mykey", "mysecret", "us-west-1");
         queueListener = spy(QueueListener.class);
         target.setQueueListener(queueListener);
     }
 
     @Test(expected = RuntimeException.class)
     public void testStart_shouldThrowExceptionIfSomeAwsCredentialsAreMissing() {
-        target = new KaliumSnsSqsQueueAdapter(null, "mysecret", "us-west-2");
+        target = new KaliumSnsSqsQueueAdapter(null, "mysecret", "us-west-1");
         target.start();
     }
 
@@ -42,16 +42,6 @@ public class KaliumSnsSqsQueueAdapterTest {
     @Test(expected = RuntimeException.class)
     public void testPost_shouldThrowException_whenCalledBeforeStart() {
         target.post(new Payment());
-    }
-
-    @Test
-    public void testPost_shouldCallPublishOnSnsService() {
-        SnsService snsService = mock(SnsService.class);
-        target.start();
-        target.setSnsService(snsService);
-        Payment payment=new Payment();
-        target.post(payment);
-        verify(snsService).publish("Payment",payment);
     }
 
 }

@@ -1,9 +1,12 @@
 package io.alkal.kalium.sns_sqs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.alkal.kalium.interfaces.KaliumQueueAdapter;
 import io.alkal.kalium.internals.QueueListener;
-import io.alkal.kalium.sns_sqs.serdes.Deserializer;
+import io.alkal.kalium.sns_sqs.serdes.MultiDeSerializer;
 import io.alkal.kalium.sns_sqs.serdes.MultiSerializer;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,13 +24,14 @@ public class KaliumSnsSqsQueueAdapter implements KaliumQueueAdapter {
     private String awsAccessKeyId;
     private String awsSecretAccessKey;
     private SnsService snsService;
+    private SqsService sqsService;
 
     private static final long POST_INIT_WARM_TIME = 500L;
 
     private QueueListener queueListener;
     private ExecutorService postingExecutorService;
     private ExecutorService consumersExecutorService;
-    private List<ConsumerLoop> consumers;
+    private List<ConsumerReaction> consumers;
 
     private MultiSerializer serializer = new MultiSerializer();
 
@@ -38,7 +42,7 @@ public class KaliumSnsSqsQueueAdapter implements KaliumQueueAdapter {
     }
 
     public KaliumSnsSqsQueueAdapter(String awsRegion) {
-        this(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_ACCESS_KEY_ID"), awsRegion);
+        this(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"), awsRegion);
     }
 
     @Override
@@ -46,11 +50,14 @@ public class KaliumSnsSqsQueueAdapter implements KaliumQueueAdapter {
         snsService = SnsService.builder().setAwsAccessKeyId(awsAccessKeyId).setAwsSecretAccessKey(awsSecretAccessKey)
                 .setAwsRegion(awsRegion).setSerializer(serializer).build();
 
+        sqsService = SqsService.builder().setAwsAccessKeyId(awsAccessKeyId).setAwsSecretAccessKey(awsSecretAccessKey)
+                .setAwsRegion(awsRegion).build();
+
         Collection<String> reactionIds = this.queueListener.getReactionIdsToObjectTypesMap().keySet();
         if (reactionIds != null && reactionIds.size() > 0) {
             consumersExecutorService = Executors.newFixedThreadPool(reactionIds.size());
             consumers = queueListener.getReactionIdsToObjectTypesMap().entrySet().stream().map(reaction ->
-                    new ConsumerLoop(reaction.getKey(), reaction.getValue(), this.queueListener, new MultiSerializer())
+                    new ConsumerReaction(reaction.getKey(), reaction.getValue(), this.queueListener,sqsService, snsService, new MultiDeSerializer(),new ObjectMapper())
             ).collect(Collectors.toList());
             consumers.forEach(consumer -> consumersExecutorService.submit(consumer));
 
@@ -104,14 +111,12 @@ public class KaliumSnsSqsQueueAdapter implements KaliumQueueAdapter {
 
     private void shutdownConsumerLoops() {
         if (consumers != null) {
-            for (ConsumerLoop consumer : consumers) {
-                consumer.shutdown();
-            }
+
             consumersExecutorService.shutdown();
             try {
                 consumersExecutorService.awaitTermination(5000, TimeUnit.DAYS.MILLISECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.warning(e.getMessage());
             }
             consumers = null;
         }

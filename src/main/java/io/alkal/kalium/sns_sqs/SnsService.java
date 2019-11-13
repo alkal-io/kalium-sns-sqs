@@ -50,13 +50,24 @@ public class SnsService {
 
     }
 
-    public SubscribeResponse subscribeQueue(String topic, String queueUrl) {
-
-        return snsClient.subscribe(SubscribeRequest.builder().topicArn(getTopicArn(topic)).protocol("sqs").endpoint(queueUrl).build());
+    /**
+     * Sub scribe a SQS queue to a SNS topic
+     * @param topicName
+     * @param queueArn
+     * @return a subscription ARN
+     */
+    public String subscribeQueue(String topicName, String queueArn) {
+        SubscribeRequest request = SubscribeRequest.builder()
+                .topicArn(getTopicArn(topicName))
+                .protocol("sqs")
+                .endpoint(queueArn)
+                .build();
+        SubscribeResponse response = snsClient.subscribe(request);
+        return response.subscriptionArn();
     }
 
     public static class SnsServiceBuilder {
-        private String awsAccessKeyId,awsSecretAccessKey,awsRegion;
+        private String awsAccessKeyId, awsSecretAccessKey, awsRegion;
         private Serializer serializer;
 
         public SnsServiceBuilder setAwsAccessKeyId(String awsAccessKeyId) {
@@ -82,7 +93,7 @@ public class SnsService {
         public SnsService build() {
             SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion))
                     .credentialsProvider(AwsUtils.createCredentialsProvider(awsAccessKeyId, awsSecretAccessKey)).build();
-            return new SnsService(serializer,snsClient);
+            return new SnsService(serializer, snsClient);
         }
     }
 }

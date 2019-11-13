@@ -13,7 +13,7 @@ public abstract class BaseDeSerializer implements Deserializer {
     protected Map<String, Class<?>> topicToClassMap;
 
     @Override
-    public void configure(Map<String, Class<?>> topicToClassMap) {
+    public void setTopicToClassMap(Map<String, Class<?>> topicToClassMap) {
         if (topicToClassMap == null) {
             throw new RuntimeException("Failed to configure de-serializer. Topics to Classes map is null!");
         }

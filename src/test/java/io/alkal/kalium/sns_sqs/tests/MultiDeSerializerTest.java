@@ -36,17 +36,17 @@ public class MultiDeSerializerTest {
     }
 
     @Test
-    public void testConfigure_shouldCallConfigureInDelagateDeSerializers() {
+    public void testSetTopicToClassMap_shouldCallSetTopicToClassMapInDelagateDeSerializers() {
         Map<String, Class<?>> topicToClassMap = createValidTopicToClassMap();
-        target.configure(topicToClassMap);
-        verify(jsonDeSerializer).configure(eq(topicToClassMap));
-        verify(protobufDeSerializer).configure(eq(topicToClassMap));
+        target.setTopicToClassMap(topicToClassMap);
+        verify(jsonDeSerializer).setTopicToClassMap(eq(topicToClassMap));
+        verify(protobufDeSerializer).setTopicToClassMap(eq(topicToClassMap));
     }
 
     @Test(expected = RuntimeException.class)
     public void testConfigure_shouldThrowAnException_whenDelegatDeserializerThrowsException() throws InterruptedException {
-        doThrow(new RuntimeException()).when(jsonDeSerializer).configure(null);
-        target.configure(null);
+        doThrow(new RuntimeException()).when(jsonDeSerializer).setTopicToClassMap(null);
+        target.setTopicToClassMap(null);
     }
 
 
@@ -60,7 +60,7 @@ public class MultiDeSerializerTest {
 
     @Test
     public void testDeserialize_shouldDelegateToProtoDeserialize_whenTopicIsForProtoObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         String data = Base64.getEncoder().encodeToString(new byte[3]);
         Payment.PaymentPB paymentPB = Payment.PaymentPB.newBuilder().build();
         doReturn(paymentPB).when(protobufDeSerializer).deserialize("paymentPb", data);
@@ -72,7 +72,7 @@ public class MultiDeSerializerTest {
 
     @Test
     public void testDeserialize_shouldDelegateToJsonDeserialize_whenTopicIsNotForProtoObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         String data = Base64.getEncoder().encodeToString(new byte[3]);
         io.alkal.kalium.sns_sqs.tests.models.pojo.Payment payment = new io.alkal.kalium.sns_sqs.tests.models.pojo.Payment();
         doReturn(payment).when(jsonDeSerializer).deserialize("payment", data);

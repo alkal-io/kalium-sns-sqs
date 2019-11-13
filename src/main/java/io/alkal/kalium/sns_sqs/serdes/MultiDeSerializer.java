@@ -1,5 +1,6 @@
 package io.alkal.kalium.sns_sqs.serdes;
 
+import com.sun.xml.internal.rngom.dt.builtin.BuiltinDatatypeLibrary;
 import io.alkal.kalium.sns_sqs.ProtoUtils;
 
 import java.util.Map;
@@ -26,9 +27,9 @@ public class MultiDeSerializer implements Deserializer {
     }
 
     @Override
-    public void configure(Map<String, Class<?>> topicToClassMap) {
-        jsonDeSerializer.configure(topicToClassMap);
-        protobufDeSerializer.configure(topicToClassMap);
+    public void setTopicToClassMap(Map<String, Class<?>> topicToClassMap) {
+        jsonDeSerializer.setTopicToClassMap(topicToClassMap);
+        protobufDeSerializer.setTopicToClassMap(topicToClassMap);
     }
 
     @Override
@@ -45,6 +46,5 @@ public class MultiDeSerializer implements Deserializer {
     public boolean isProtobuf(String topic) {
         return ProtoUtils.isProtoClass(protobufDeSerializer.getTopicToClassMap().get(topic));
     }
-
 
 }

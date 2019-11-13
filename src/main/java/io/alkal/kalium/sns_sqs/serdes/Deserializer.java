@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public interface Deserializer {
 
-    void configure(Map<String, Class<?>> topicToClassMap);
+    void setTopicToClassMap(Map<String, Class<?>> topicToClassMap);
 
     Object deserialize(String topic, String base64String);
 }

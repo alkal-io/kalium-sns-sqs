@@ -39,8 +39,8 @@ public class JsonDeSerializerTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testConfigure_shouldThrowAnException_whenTopicToClassMapIsNull() throws InterruptedException {
-        target.configure(null);
+    public void testSetTopicToClassMap_shouldThrowAnException_whenTopicToClassMapIsNull() throws InterruptedException {
+        target.setTopicToClassMap(null);
     }
 
 
@@ -57,7 +57,7 @@ public class JsonDeSerializerTest {
     @Test(expected = SerializationException.class)
     public void testDeserialize_whenTopicIsNotInTopicToClassMap_shouldThrowSerializationException() {
         Map<String, Class<?>> topicToClassMap = new HashMap<>();
-        target.configure(topicToClassMap);
+        target.setTopicToClassMap(topicToClassMap);
 
         target.deserialize(validTopic, validSerializedPayment);
     }
@@ -66,7 +66,7 @@ public class JsonDeSerializerTest {
     public void testDeserialize_whenNoClassIsMappedInTopicToClassMap_shouldThrowSerializationException() {
         Map<String, Class<?>> topicToClassMap = new HashMap<>();
         topicToClassMap.put("payment", null);
-        target.configure(topicToClassMap);
+        target.setTopicToClassMap(topicToClassMap);
 
         target.deserialize(validTopic, validSerializedPayment);
     }
@@ -74,20 +74,20 @@ public class JsonDeSerializerTest {
     @Test(expected = SerializationException.class)
     public void testDeserialize_whenObjectMapperThrowsException_shouldThrowSerializationException() throws Exception {
         Mockito.when(objectMapper.readValue(any(byte[].class), any(Class.class))).thenThrow(new IOException());
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         target.deserialize(validTopic, validSerializedPayment);
     }
 
     @Test
     public void testDeserialize_whenBase64StringIsNull_shouldReturnNullObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, null);
         assertNull(o);
     }
 
     @Test
     public void testDeserialize_whenBase64StringIsEmpty_shouldReturnNullObject() {
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, "");
         assertNull(o);
     }
@@ -95,7 +95,7 @@ public class JsonDeSerializerTest {
     @Test
     public void testDeserialize_shouldReturnPaymentObject() {
         target = new JsonDeSerializer(new ObjectMapper());
-        target.configure(createValidTopicToClassMap());
+        target.setTopicToClassMap(createValidTopicToClassMap());
         Object o = target.deserialize(validTopic, validSerializedPayment);
         assertTrue(o instanceof Payment);
     }
