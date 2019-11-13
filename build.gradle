@@ -16,7 +16,7 @@ plugins {
 }
 
 group = 'io.alkal'
-version = '0.0.1'
+version = '0.0.4'
 
 dependencies {
 
@@ -63,7 +63,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'io.alkal'
             artifactId = 'kalium-sns-sqs'
-            version = '0.0.1-SNAPSHOT'
+            version = '0.0.4-SNAPSHOT'
             from components.java
             artifact sourcesJar
             artifact javadocJar
