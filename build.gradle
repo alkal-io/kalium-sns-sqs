@@ -24,8 +24,11 @@ dependencies {
 
     implementation 'software.amazon.awssdk:sqs'
     implementation 'software.amazon.awssdk:sns'
+<<<<<<< HEAD
     implementation 'software.amazon.awssdk:utils'
     implementation 'software.amazon.awssdk:auth'
+=======
+>>>>>>> origin/master
 
     implementation 'io.alkal:kalium:0.0.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
