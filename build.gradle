@@ -63,7 +63,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'io.alkal'
             artifactId = 'kalium-sns-sqs'
-            version = '0.0.4-SNAPSHOT'
+            version = '0.0.4'
             from components.java
             artifact sourcesJar
             artifact javadocJar
