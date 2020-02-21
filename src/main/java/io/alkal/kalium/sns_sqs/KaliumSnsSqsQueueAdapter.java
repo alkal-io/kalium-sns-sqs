@@ -5,8 +5,6 @@ import io.alkal.kalium.interfaces.KaliumQueueAdapter;
 import io.alkal.kalium.internals.QueueListener;
 import io.alkal.kalium.sns_sqs.serdes.MultiDeSerializer;
 import io.alkal.kalium.sns_sqs.serdes.MultiSerializer;
-import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 import java.util.Collection;
 import java.util.List;
