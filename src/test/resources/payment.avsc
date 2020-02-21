@@ -1,0 +1,8 @@
+{"namespace": "io.alkal.kalium.sns_sqs.tests.models.avro",
+ "type": "record",
+ "name": "PaymentAV",
+ "fields": [
+     {"name": "id", "type": ["string","null"]},
+     {"name": "processed",  "type": ["boolean","null"]}
+ ]
+}

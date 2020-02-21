@@ -10,7 +10,7 @@ import java.util.Map;
 public abstract class BaseDeSerializer implements Deserializer {
 
 
-    protected Map<String, Class<?>> topicToClassMap;
+    protected Map<String, Class<?>>     topicToClassMap;
 
     @Override
     public void setTopicToClassMap(Map<String, Class<?>> topicToClassMap) {

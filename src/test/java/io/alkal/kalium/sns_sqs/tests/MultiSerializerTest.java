@@ -3,16 +3,15 @@ package io.alkal.kalium.sns_sqs.tests;/*
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.alkal.kalium.sns_sqs.serdes.JsonSerializer;
-import io.alkal.kalium.sns_sqs.serdes.MultiSerializer;
-import io.alkal.kalium.sns_sqs.serdes.ProtobufSerializer;
-import io.alkal.kalium.sns_sqs.serdes.SerializationException;
+import io.alkal.kalium.sns_sqs.serdes.*;
+import io.alkal.kalium.sns_sqs.tests.models.avro.PaymentAV;
 import io.alkal.kalium.sns_sqs.tests.models.pb.Payment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.Base64;
 
 import static org.junit.Assert.assertEquals;
@@ -27,11 +26,14 @@ public class MultiSerializerTest {
 
     private ProtobufSerializer protobufSerializer;
 
+    private AvroSerializer avroSerializer;
+
     @Before
     public void setup() {
         protobufSerializer = spy(ProtobufSerializer.class);
         jsonSerializer = spy(JsonSerializer.class);
-        target = new MultiSerializer(jsonSerializer, protobufSerializer);
+        avroSerializer = spy(AvroSerializer.class);
+        target = new MultiSerializer(jsonSerializer, protobufSerializer, avroSerializer);
     }
 
 
@@ -45,15 +47,27 @@ public class MultiSerializerTest {
     public void testSerialize_shouldDelegateToProtoSerialize_whenUsingWithProtoObject() {
         Payment.PaymentPB paymentPB = Payment.PaymentPB.newBuilder().build();
         verify(jsonSerializer, never()).serialize(any());
+        verify(avroSerializer, never()).serialize(any());
         String base64 = target.serialize(paymentPB);
         assertEquals(Base64.getEncoder().encodeToString(paymentPB.toByteArray()), base64);
 
     }
 
     @Test
-    public void testSerialize_shouldDelegateToJsonSerialize_whenNotUsingWithProtoObject() throws Exception {
+    public void testSerialize_shouldDelegateToAvroSerialize_whenUsingWithAvroObject() throws IOException {
+        PaymentAV paymentAV = PaymentAV.newBuilder().setId("some id").setProcessed(false).build();
+        verify(jsonSerializer, never()).serialize(any());
+        verify(protobufSerializer, never()).serialize(any());
+        String base64 = target.serialize(paymentAV);
+        assertEquals(Base64.getEncoder().encodeToString(paymentAV.toByteBuffer().array()), base64);
+
+    }
+
+    @Test
+    public void testSerialize_shouldDelegateToJsonSerialize_whenNotUsingWithProtoNorAvroObject() throws Exception {
         io.alkal.kalium.sns_sqs.tests.models.pojo.Payment payment = new io.alkal.kalium.sns_sqs.tests.models.pojo.Payment();
         verify(protobufSerializer, never()).serialize(any(Object.class));
+        verify(avroSerializer, never()).serialize(any(Object.class));
         String base64 = target.serialize(payment);
         String expected = Base64.getEncoder().encodeToString(new ObjectMapper().writeValueAsBytes(payment));
         assertEquals(expected, base64);
