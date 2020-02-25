@@ -44,7 +44,7 @@ public class KaliumSnsSqsBasicTest {
         kalium2.post(payment);
 
 
-        Thread.sleep(6000);
+        Thread.sleep(20000);
 
         synchronized (myReaction) {
             Assert.assertTrue(myReaction.isMethodCalled());
