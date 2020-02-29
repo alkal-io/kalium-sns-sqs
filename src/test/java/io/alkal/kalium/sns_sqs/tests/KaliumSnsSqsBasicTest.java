@@ -54,6 +54,9 @@ public class KaliumSnsSqsBasicTest {
             Assert.assertTrue(myReaction2.isMethodCalled());
         }
 
+        kalium1.stop();
+        kalium2.stop();
+
 
     }
 
