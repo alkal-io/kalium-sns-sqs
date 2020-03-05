@@ -16,7 +16,7 @@ plugins {
 }
 
 group = 'io.alkal'
-version = '0.0.4'
+version = '0.0.5'
 
 dependencies {
 
@@ -25,9 +25,10 @@ dependencies {
     implementation 'software.amazon.awssdk:sqs'
     implementation 'software.amazon.awssdk:sns'
 
-    implementation 'io.alkal:kalium:0.0.3'
+    implementation 'io.alkal:kalium:0.0.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
     implementation 'com.google.protobuf:protobuf-java:3.9.2'
+    implementation 'org.apache.avro:avro:1.9.2'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.4'

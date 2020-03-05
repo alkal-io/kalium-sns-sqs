@@ -5,6 +5,7 @@ import io.alkal.kalium.exceptions.KaliumBuilderException;
 import io.alkal.kalium.exceptions.KaliumException;
 import io.alkal.kalium.interfaces.KaliumQueueAdapter;
 import io.alkal.kalium.sns_sqs.KaliumSnsSqsQueueAdapter;
+import io.alkal.kalium.sns_sqs.tests.models.avro.PaymentAV;
 import io.alkal.kalium.sns_sqs.tests.models.pojo.Payment;
 import io.alkal.kalium.sns_sqs.tests.models.pojo.Receipt;
 import org.junit.Before;
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class TestLambda {
 
     private static final String AWS_REGION = "us-west-1";
-    private static final long POLLING_WAIT = 3000L;
+    private static final long POLLING_WAIT = 1000L;
 
     public void printInfo() {
         String testInfo = Thread.currentThread().getStackTrace()[2].getMethodName();
@@ -93,7 +94,7 @@ public class TestLambda {
             System.out.println("Proto object for Payment arrived! [id=" + payment.getId() + "]");
             protoObjectArrived.set(true);
 
-        },"test2");
+        }, "test2");
         kalium1.start();
 
 
@@ -116,6 +117,45 @@ public class TestLambda {
     }
 
     @Test
+    public void test_lambdaOn_shouldInvoke_whenPublishingAnAvroObject() throws InterruptedException, KaliumBuilderException, KaliumException {
+
+        printInfo();
+        final AtomicReference<Boolean> avroObjectArrived = new AtomicReference<>();
+        avroObjectArrived.set(false);
+
+        System.out.println("Start Kalium-Kafka Basic End-2-End Test With Proto Objects");
+        KaliumQueueAdapter queueAdapter1 = new KaliumSnsSqsQueueAdapter(AWS_REGION);
+
+        Kalium kalium1 = Kalium.Builder()
+                .setQueueAdapter(queueAdapter1)
+                .build();
+
+        kalium1.on(PaymentAV.class, payment -> {
+            System.out.println("Proto object for Payment arrived! [id=" + payment.getId() + "]");
+            avroObjectArrived.set(true);
+
+        }, "test2");
+        kalium1.start();
+
+
+        KaliumQueueAdapter queueAdapter2 = new KaliumSnsSqsQueueAdapter(AWS_REGION);
+        Kalium kalium2 = Kalium.Builder()
+                .setQueueAdapter(queueAdapter2)
+                .build();
+        kalium2.start();
+
+        PaymentAV payment = PaymentAV.newBuilder().setId("my payment id").setProcessed(false).build();
+        kalium2.post(payment);
+
+        Thread.sleep(POLLING_WAIT);
+        kalium2.stop();
+        kalium1.stop();
+
+        assertTrue(avroObjectArrived.get().booleanValue());
+
+    }
+
+    @Test
     public void test_lambdaOn_shouldInvokeInAllConsumersWithDifferentProcessingGroup_whenPublishingAnEvent() throws InterruptedException, KaliumBuilderException, KaliumException {
         printInfo();
         final AtomicReference<Boolean> message1Arrived = new AtomicReference<>();
@@ -132,7 +172,7 @@ public class TestLambda {
         kalium11.on(Payment.class, payment -> {
             System.out.println(payment);
             message1Arrived.set(true);
-        },"test3_1");
+        }, "test3_1");
 
         kalium11.start();
 
@@ -145,7 +185,7 @@ public class TestLambda {
         kalium12.on(Payment.class, payment -> {
             System.out.println(payment);
             message2Arrived.set(true);
-        },"test3_2");
+        }, "test3_2");
 
         kalium12.start();
 
