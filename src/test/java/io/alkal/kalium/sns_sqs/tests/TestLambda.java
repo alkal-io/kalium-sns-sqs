@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class TestLambda {
 
     private static final String AWS_REGION = "us-west-1";
-    private static final long POLLING_WAIT = 20000L;
+    private static final long POLLING_WAIT = 1000L;
 
     public void printInfo() {
         String testInfo = Thread.currentThread().getStackTrace()[2].getMethodName();
