@@ -17,6 +17,7 @@ import java.util.UUID;
 
 public class KaliumSnsSqsBasicTest {
 
+    private static final long POLLING_WAIT = 1000L;
 
     @Test
     public void testItShouldCallReactionMethod_whenAMatchingEventIsPosted() throws InterruptedException, KaliumBuilderException {
@@ -44,7 +45,7 @@ public class KaliumSnsSqsBasicTest {
         kalium2.post(payment);
 
 
-        Thread.sleep(20000);
+        Thread.sleep(POLLING_WAIT);
 
         synchronized (myReaction) {
             Assert.assertTrue(myReaction.isMethodCalled());
